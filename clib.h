@@ -8,7 +8,15 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
 
+#ifdef _MSC_VER
+#define STRTOK strtok_s
+#else
+#define STRTOK strtok_r
+#endif
+
+#define MAX_CSV_LINE_LENGTH 1000
 #define KEY_LEFT	0x25
 #define KEY_UP		0x26
 #define KEY_RIGHT	0x27
@@ -59,6 +67,15 @@ typedef struct {
 	int (*hash)(void*);
 } Map;
 
+typedef struct {
+	float** dataset;
+	float** normalized_dataset;
+	float* mean_features;
+	float* std_deviation_features;
+	int set_size;
+	int vector_size;
+} DataSet;
+
 /* ********* SET ********* */
 
 void set_init(Set* s);
@@ -107,6 +124,21 @@ Bool map_remove(Map* map, void* key);
 
 Bool is_arrow_key(unsigned long long wParam);
 char* read_file(const char* filepath);
+DataSet* get_dataset_from_csv(const char* file_path);
+void normalize_dataset(DataSet* dataset);
+
+/* ********* LINEAR ALGEBRA ********* */
+
+float* vec_multiply(float scalar, float* vec, int size);
+float* vec_diff(float* vec1, float* vec2, int size);
+float vec_inner(float* vec1, float* vec2, int size);
+float** vec_outer(float* vec1, float* vec2, int vec1_size, int vec2_size);
+float* vec_hadamard(float* vec1, float* vec2, int size);
+float* get_denormalized_vector(float* normalized_vector, DataSet* dataset);
+float** mat_diff(float** matrix1, float** matrix2, int rows, int cols);
+float* matmul(float** matrix, float* vec, int vec_size, int output_vec_size, Bool multiply_transposed_matrix);
+float** mat_multiply(float scalar, float** matrix, int rows, int cols);
+void free_mat(float** matrix, int rows);
 
 /* ********* HELPER FUNCTIONS ********* */
 
